@@ -1,5 +1,3 @@
-var positions = [];
-var objs = [];
 var theChosenOnes = [];
 
 var step = 10;
@@ -12,9 +10,7 @@ var center = radius * step + Math.round((size - radius * 2) / 2) * step;
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-function sleepD(ms) {
-  return new Promise((resolve) => delay(ms, resolve));
-}
+
 async function drawCircle() {
   var last = [0, 0];
   var k = 0;
@@ -46,8 +42,8 @@ async function setupMap() {
     return Math.random() - 0.5;
   });
   await setPositions();
-  // await sleep(500);
-  //pigeonhole()
+  await sleep(500);
+  // pigeonhole();
   bubbleSort();
 }
 
@@ -63,7 +59,6 @@ async function setPositions() {
     var x = coordinate(disparity, Math.cos(a));
 
     theChosenOnes[i].obj.style.transform = `translate(${x}px,${y}px)`;
-    console.log("setPositions", x, y, a);
     await sleep(10);
   }
 }
@@ -81,12 +76,7 @@ async function bubbleSort() {
         theChosenOnes[j] = aux;
         var index = [i, j];
         for (var k = 0; k < 2; k++) {
-          // var b =
-          // delay(1000000);
-          // var start = window.performance.now();
           await sleep(0);
-          // var end = window.performance.now();
-          // console.log(`Execution time: ${end - start} ms`);
           var disparity =
             1 -
             Math.abs(theChosenOnes[index[k]].num - index[k]) /
@@ -109,8 +99,8 @@ async function bubbleSort() {
 async function pigeonhole() {
   var start = window.performance.now();
   var a = Array.from(
-    objs.map((x) => {
-      return x.index;
+    theChosenOnes.map((x) => {
+      return x.num;
     })
   );
 
@@ -120,36 +110,31 @@ async function pigeonhole() {
   var b = Array(range)
     .fill(null)
     .map(() => []);
+  var colors = {};
+  for (var x = 0; x < theChosenOnes.length; x++) {
+    colors[theChosenOnes[x].num] = theChosenOnes[x].obj.style.backgroundColor;
+    theChosenOnes[x].obj.style.backgroundColor = "white";
+    await sleep(0);
 
-  for (var x = 0; x < objs.length; x++) {
-    if (objs[x].obj) {
-      objs[x].obj.style.background = "red";
-      await sleep(0);
-      objs[x].obj.style.background = "white";
-    }
-    b[objs[x].index - min].push(objs[x]);
+    b[theChosenOnes[x].num - min].push(theChosenOnes[x]);
   }
 
-  objs = b.reduce((x, y) => {
+  theChosenOnes = b.reduce((x, y) => {
     return x.concat(y);
   }, []);
 
-  for (var x = 0; x < objs.length; x++) {
-    if (objs[x].obj) {
-      objs[x].obj.style.background = "white";
-      objs[x].obj.style.transform = `translate(${positions[x]})`;
-      await sleep(0);
-    }
+  for (var k = 0; k < theChosenOnes.length; k++) {
+    theChosenOnes[k].obj.style.backgroundColor = colors[theChosenOnes[k].num];
+    var disparity =
+      1 - Math.abs(theChosenOnes[k].num - k) / theChosenOnes.length;
+    var c = (theChosenOnes[k].angle * Math.PI) / 180;
+    var y = coordinate(disparity, Math.sin(c));
+    var x = coordinate(disparity, Math.cos(c));
+
+    theChosenOnes[k].obj.style.transform = `translate(${x}px,${y}px)`;
+
+    await sleep(0);
   }
   var end = window.performance.now();
   console.log(`Execution time: ${end - start} ms`);
-}
-
-async function delay(ms, resolve) {
-  var start = window.performance.now();
-  while (true) {
-    if (window.performance.now() - start > ms) {
-      return resolve();
-    }
-  }
 }
