@@ -1,0 +1,22 @@
+html,
+body {
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height:100%;
+}
+
+.box {
+width: 500px;
+height: 500px;
+}
+
+.dot {
+  position : absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 100px;
+  background: white;
+  transform: translate(0px,0px);
+}
